@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+struct Node {
+    int guess;
+    struct Node* next;
+};
+void addGuess(struct Node** head, int guess) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->guess = guess;
+    newNode->next = *head;
+    *head = newNode;
+}
+
+int searchGuess(struct Node* head, int guess) {
+    struct Node* current = head;
+    while (current != NULL) {
+        if (current->guess == guess) {
+            return 1;
+        current = current->next;
+    }
+    return 0; 
+
+void freeList(struct Node* head) {
+    struct Node* current = head;
+    while (current != NULL) {
+        struct Node* temp = current;
+        current = current->next;
+        free(temp);
+    }
+}
+
+int main() {
+    int numberToGuess, playerGuess, attempts = 0;
+    struct Node* guesses = NULL;
+
+    srand(time(0));
+    numberToGuess = rand() % 100 + 1;
+
+    printf("Welcome to GuessIt!\n");
+    printf("Guess a number between 1 and 100. You have a maximum of 8 attempts.\n");
+
+    do {
+        printf("Enter your guess: ");
+        scanf("%d", &playerGuess);
+
+        if (searchGuess(guesses, playerGuess)) {
+            printf("You've already guessed %d! Try a different number.\n", playerGuess);
+            continue; 
+        }
+        addGuess(&guesses, playerGuess);
+        attempts++;
+
+        if (playerGuess < numberToGuess) {
+            printf("Too low! Try again.\n");
+            if (numberToGuess - playerGuess < 10) {
+                printf("You're very close!\n");
+            }
+        } else if (playerGuess > numberToGuess) {
+            printf("Too high! Try again.\n");
+            if (playerGuess - numberToGuess < 10) {
+                printf("You're very close!\n");
+            }
+        } else {
+            printf("Congratulations! You've guessed the number in %d attempts!\n", attempts);
+            break;
+        }
+    } while (playerGuess != numberToGuess && attempts < 8);
+
+    if (attempts == 8 && playerGuess != numberToGuess) {
+        printf("Sorry, you've used all 8 attempts. The correct number was %d.\n", numberToGuess);
+    }
+
+    freeList(guesses);
+
+    return 0;
+}
